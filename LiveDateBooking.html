@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ontario Parks - Date Booking</title>
+    <style>
+        :root {
+            --primary: #2e5635;
+            --primary-dark: #204026;
+            --accent: #a3c76d;
+            --bg: #f5f7f2;
+            --panel: #fff;
+            --border: #dbe5d1;
+            --text: #222;
+            --muted: #6b7a6a;
+            --success: #3b7a57;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(46, 86, 53, 0.08);
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 3rem auto;
+            background: var(--panel);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 2rem 1.5rem 2.5rem 1.5rem;
+            border: 1.5px solid var(--border);
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin-bottom: 1.2rem;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .calendar-label {
+            font-size: 1rem;
+            color: var(--muted);
+            margin-bottom: 0.3rem;
+            margin-top: 1.2rem;
+            font-weight: 500;
+        }
+
+        .calendar {
+            background: var(--bg);
+            border-radius: var(--radius);
+            padding: 1rem 0.5rem 0.7rem 0.5rem;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 1px 4px rgba(46, 86, 53, 0.04);
+            border: 1px solid var(--border);
+        }
+
+        .calendar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .calendar-header button {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 1.3rem;
+            cursor: pointer;
+            padding: 0 0.5rem;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .calendar-header button:focus {
+            outline: 2px solid var(--accent);
+        }
+
+        .calendar-header span {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--primary-dark);
+        }
+
+        .calendar-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+        }
+
+        .calendar-table th {
+            color: var(--muted);
+            font-size: 0.92rem;
+            font-weight: 500;
+            padding-bottom: 0.2rem;
+        }
+
+        .calendar-table td {
+            width: 2.2rem;
+            height: 2.2rem;
+            padding: 0;
+        }
+
+        .calendar-table button {
+            width: 2rem;
+            height: 2rem;
+            border: none;
+            border-radius: 50%;
+            background: none;
+            color: var(--text);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .calendar-table button.today {
+            border: 1.5px solid var(--accent);
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .calendar-table button.selected {
+            background: var(--primary);
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .calendar-table button.range {
+            background: var(--accent);
+            color: var(--primary-dark);
+        }
+
+        .calendar-table button:disabled {
+            color: #bbb;
+            cursor: not-allowed;
+            background: none;
+        }
+
+        .booking-summary {
+            margin-top: 1.5rem;
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 1rem 1rem 1rem 3.2rem;
+            color: var(--success);
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-left: 5px solid var(--success);
+            box-shadow: 0 1px 4px rgba(46, 86, 53, 0.04);
+            position: relative;
+            min-height: 2.5rem;
+        }
+
+        .booking-summary:before {
+            content: '\2714';
+            position: absolute;
+            left: 1rem;
+            top: 1.1rem;
+            font-size: 1.3rem;
+            color: var(--success);
+        }
+
+        .book-btn {
+            width: 100%;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 0.9rem 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 1.2rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            box-shadow: 0 1px 4px rgba(46, 86, 53, 0.08);
+            transition: background 0.18s;
+        }
+
+        .book-btn:hover,
+        .book-btn:focus {
+            background: var(--primary-dark);
+            outline: none;
+        }
+
+        .booking-warning {
+            margin-top: 0.5rem;
+            background: #fff3cd;
+            border-left: 5px solid #e0a800;
+            color: #856404;
+            border-radius: 8px;
+            padding: 0.8rem 1rem 0.8rem 2.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            box-shadow: 0 1px 4px rgba(46, 86, 53, 0.04);
+            position: relative;
+            min-height: 2.2rem;
+        }
+
+        .booking-warning:before {
+            content: '\26A0';
+            position: absolute;
+            left: 1rem;
+            top: 0.7rem;
+            font-size: 1.2rem;
+            color: #e0a800;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                max-width: 98vw;
+                padding: 1rem 0.2rem 1.5rem 0.2rem;
+            }
+
+            h1 {
+                font-size: 1.1rem;
+            }
+
+            .calendar {
+                padding: 0.7rem 0.1rem 0.5rem 0.1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Ontario Parks Booking</h1>
+        <div class="calendar-label">Arrival Date</div>
+        <div class="calendar" id="arrival-calendar"></div>
+        <div class="calendar-label">Departure Date</div>
+        <div class="calendar" id="departure-calendar"></div>
+        <button id="book-btn" class="book-btn" type="button">Book</button>
+        <div id="booking-summary" class="booking-summary" style="display:none;"></div>
+        <div id="booking-warning" class="booking-warning" style="display:none;"></div>
+    </div>
+    <script>
+        // Helper functions
+        function getDaysInMonth(year, month) {
+            return new Date(year, month + 1, 0).getDate();
+        }
+        function pad(n) {
+            return n < 10 ? '0' + n : n;
+        }
+        function formatDate(date) {
+            if (!date) return '';
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            return `${days[date.getDay()]} ${pad(date.getDate())} ${date.toLocaleString('default', { month: 'long' })} ${date.getFullYear()}`;
+        }
+        function isSameDay(a, b) {
+            return a && b && a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+        }
+        function isInRange(day, start, end) {
+            return start && end && day >= start && day <= end;
+        }
+        // Calendar rendering
+        function renderCalendar({ container, selected, onSelect, month, year, today, range, type }) {
+            const daysInMonth = getDaysInMonth(year, month);
+            const firstDay = new Date(year, month, 1).getDay();
+            const weeks = [];
+            let week = [];
+            // Fill blanks for first week (Mon-Sun)
+            for (let i = 0; i < (firstDay === 0 ? 6 : firstDay - 1); i++) week.push(null);
+            for (let d = 1; d <= daysInMonth; d++) {
+                week.push(new Date(year, month, d));
+                if (week.length === 7) {
+                    weeks.push(week);
+                    week = [];
+                }
+            }
+            if (week.length) {
+                while (week.length < 7) week.push(null);
+                weeks.push(week);
+            }
+            // Table
+            let html = `<div class="calendar-header">
+        <button class="prev" aria-label="Previous Month">&#8592;</button>
+        <span>${year} ${dateMonthName(month)}</span>
+        <button class="next" aria-label="Next Month">&#8594;</button>
+      </div>
+      <table class="calendar-table">
+        <thead><tr><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th></tr></thead>
+        <tbody>`;
+            for (const w of weeks) {
+                html += '<tr>';
+                for (const day of w) {
+                    if (!day) {
+                        html += '<td></td>';
+                        continue;
+                    }
+                    let classes = [];
+                    if (today && isSameDay(day, today)) classes.push('today');
+                    if (selected && isSameDay(day, selected)) classes.push('selected');
+                    if (range && range.start && range.end && isInRange(day, range.start, range.end)) classes.push('range');
+                    html += `<td><button class="${classes.join(' ')}" data-date="${day.toISOString()}" tabindex="0">${day.getDate()}</button></td>`;
+                }
+                html += '</tr>';
+            }
+            html += '</tbody></table>';
+            container.innerHTML = html;
+            // Navigation
+            container.querySelector('.prev').onclick = () => onSelect('prev');
+            container.querySelector('.next').onclick = () => onSelect('next');
+            // Date select
+            container.querySelectorAll('button[data-date]').forEach(btn => {
+                btn.onclick = () => onSelect(new Date(btn.dataset.date));
+            });
+        }
+        function dateMonthName(month) {
+            return new Date(2025, month, 1).toLocaleString('default', { month: 'long' });
+        }
+        // Main Booking Logic
+        (function () {
+            const arrivalCal = document.getElementById('arrival-calendar');
+            const departureCal = document.getElementById('departure-calendar');
+            const bookingSummary = document.getElementById('booking-summary');
+            const bookingWarning = document.getElementById('booking-warning');
+            const bookBtn = document.getElementById('book-btn');
+            let today = new Date();
+            let arrival = null;
+            let departure = null;
+            let arrMonth = today.getMonth(), arrYear = today.getFullYear();
+            let depMonth = today.getMonth(), depYear = today.getFullYear();
+            function rerender() {
+                renderCalendar({
+                    container: arrivalCal,
+                    selected: arrival,
+                    onSelect: handleArrivalSelect,
+                    month: arrMonth,
+                    year: arrYear,
+                    today,
+                    range: arrival && departure ? { start: arrival, end: departure } : null,
+                    type: 'arrival',
+                });
+                renderCalendar({
+                    container: departureCal,
+                    selected: departure,
+                    onSelect: handleDepartureSelect,
+                    month: depMonth,
+                    year: depYear,
+                    today,
+                    range: arrival && departure ? { start: arrival, end: departure } : null,
+                    type: 'departure',
+                });
+                bookingSummary.style.display = 'none';
+                bookingWarning.style.display = 'none';
+            }
+            function handleArrivalSelect(val) {
+                if (val === 'prev') {
+                    if (arrMonth === 0) { arrMonth = 11; arrYear--; } else { arrMonth--; }
+                } else if (val === 'next') {
+                    if (arrMonth === 11) { arrMonth = 0; arrYear++; } else { arrMonth++; }
+                } else if (val instanceof Date) {
+                    arrival = val;
+                    if (departure && departure < arrival) departure = null;
+                }
+                rerender();
+            }
+            function handleDepartureSelect(val) {
+                if (val === 'prev') {
+                    if (depMonth === 0) { depMonth = 11; depYear--; } else { depMonth--; }
+                } else if (val === 'next') {
+                    if (depMonth === 11) { depMonth = 0; depYear++; } else { depMonth++; }
+                } else if (val instanceof Date) {
+                    if (!arrival || val < arrival) {
+                        arrival = val;
+                        departure = null;
+                    } else {
+                        departure = val;
+                    }
+                }
+                rerender();
+            }
+            bookBtn.onclick = function () {
+                bookingSummary.style.display = 'none';
+                bookingWarning.style.display = 'none';
+                if (arrival && departure) {
+                    bookingSummary.style.display = '';
+                    bookingSummary.textContent = `Booking created for ${formatDate(arrival)} to ${formatDate(departure)}!`;
+                } else {
+                    bookingWarning.style.display = '';
+                    bookingWarning.textContent = 'Please select both arrival and departure dates to book.';
+                }
+            };
+            rerender();
+        })();
+    </script>
+</body>
+
+</html>
